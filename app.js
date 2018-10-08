@@ -39,6 +39,7 @@
                                     // Prepare UI for rendering
                                     document.querySelector('.articles').classList.add('active');
                                     document.querySelector('.footer').classList.add('active');
+                                    clearLoader();
                     
                                     // Render articles
                                     document.querySelector('.btn-inline').insertAdjacentHTML('beforebegin', htmlContent);
@@ -68,6 +69,7 @@
 
         req.open('GET', url);
         req.send();
+        renderLoader();
 
     }
 
@@ -111,6 +113,34 @@
             return min === 1? `${min} minute ago` : `${min} minutes ago`
         }
     };
+
+    function renderLoader(type) {
+        var position;
+        if(type === 'small') {
+            type = 'loader-small';
+            position = 'beforeend';
+        } else {
+            type = 'loader';
+            position = 'afterend';
+        }
     
+        const loader = `
+            <div class="${type}">
+                <svg>
+                    <use href="img/icons.svg#icon-cw"></use>
+                </svg>
+            </div>`;
+    
+        document.querySelector('.articles').insertAdjacentHTML(position, loader);
+    };
+
+    function clearLoader(type) {
+        let loader = document.querySelector(".loader");
+        if(!loader) {
+            loader = document.querySelector(".loader-small");
+        }
+        loader.parentElement.removeChild(loader);
+    };
+
 })();
     
