@@ -11,6 +11,7 @@
             if(req.readyState === 4 && req.status === 200) {
                 let IDs = JSON.parse(req.responseText);
                 let startIdx = 0;
+                let articles = {};
 
                 requestArticles(startIdx, num);
                 
@@ -22,7 +23,30 @@
                         let reqArticle = new XMLHttpRequest();
                         reqArticle.onreadystatechange = function() {
                             if(reqArticle.readyState === 4 && reqArticle.status === 200) {
-                                console.log(reqArticle.responseText);
+                                let article = JSON.parse(reqArticle.responseText);
+                        
+                                // Save articles into data
+                                articles[article.id] = article;
+
+                                if(Object.keys(articles).length === endIdx) {
+                                    let htmlContent = '';
+                                    
+                                    // Create html articles
+                                    for(let i = startIdx; i < endIdx; i++) {
+                                        htmlContent += createArticle(articles[IDs[i]], i);
+                                    }
+
+                                    // Prepare UI for rendering
+                                    document.querySelector('.articles').classList.add('active');
+                                    document.querySelector('.footer').classList.add('active');
+                    
+                                    // Render articles
+                                    document.querySelector('.btn-inline').insertAdjacentHTML('beforebegin', htmlContent);
+
+                                    // Update startIdx as endIdx
+                                    startIdx = endIdx;
+                                }
+
                             }
                         };
     
@@ -47,5 +71,46 @@
 
     }
 
+    function createArticle(article, idx) {
+        return `
+            <div class="article">
+                <div class="title">
+                    <span class="ranking">${idx + 1}.</span>
+                    <a href="#" class="arrow"></a>
+                    <a href="${article.url}"><h3 class="article-title">${article.title}</h3></a>
+                    <div class="link">(<span class="url">${formatUrl(article.url)}</span>)</div>
+                </div>
+                <div class="extra-info">
+                    <span class="point">${article.score} points</span>
+                    <span class="by">by ${article.by} </span>
+                    <span class="time">${formatTime(article.time)} |</span>
+                    hide |
+                    <span class="comments">${article.descendants} comments </span> 
+                </div>
+            </div>`
+    };
+
+    function formatUrl(str) {
+        if(str === undefined) {return '---';}
+        let url = str.replace('http://', '');
+        url = url.replace('https://', '');
+        url = url.split('/')[0];
+        if(url.split('.')[0] === 'www') {
+            url = url.split('.').slice(1).join('.');
+        }
+        return url;
+    };
+
+    function formatTime(unix) {
+        let time = new Date() - new Date(unix * 1000);
+        if(time >= 1000 * 60 * 60) {
+            const hours = Math.floor(time / (1000 * 60 * 60));
+            return hours === 1? `${hours} hour ago` : `${hours} hours ago`
+        } else if(time < 1000 * 60 * 60) {
+            const min = Math.floor(time / (1000 * 60));
+            return min === 1? `${min} minute ago` : `${min} minutes ago`
+        }
+    };
+    
 })();
     
