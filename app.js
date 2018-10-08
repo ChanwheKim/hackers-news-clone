@@ -1,6 +1,6 @@
 (function() {
 
-    topStoriesRequest(5);
+    topStoriesRequest(15);
 
     function topStoriesRequest(num) {
 
@@ -39,6 +39,7 @@
                                     // Prepare UI for rendering
                                     document.querySelector('.articles').classList.add('active');
                                     document.querySelector('.footer').classList.add('active');
+                                    document.querySelector('.btn-inline').classList.remove('in-active');
                                     clearLoader();
                     
                                     // Render articles
@@ -60,6 +61,11 @@
 
                     }
                 };
+                document.querySelector('.btn-inline').addEventListener('click', function(e) {
+                    e.currentTarget.classList.add('in-active');
+                    renderLoader('small');
+                    requestArticles(startIdx, 5);
+                });
             }
         };
 
@@ -134,7 +140,7 @@
         document.querySelector('.articles').insertAdjacentHTML(position, loader);
     };
 
-    function clearLoader(type) {
+    function clearLoader() {
         let loader = document.querySelector(".loader");
         if(!loader) {
             loader = document.querySelector(".loader-small");
