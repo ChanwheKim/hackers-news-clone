@@ -31,6 +31,7 @@ const data = {};
             .then(handleError)
             .then(parseJSON)
             .then(saveArticles)
+            .then(createHtmlStr)
 
         }
 
@@ -56,15 +57,36 @@ const data = {};
     function saveArticleIDs(ids) {
         data.IDs = ids;
         data.articles = {};
-        data.htmlStr = {};
+        data.htmlStr = [];
         return data.IDs;
     };
 
     //// request for separate articles
     function saveArticles(article) {
+        let idx = data.IDs.indexOf(article.id);
         data.articles[article.id] = article;
-    }
+        data.articles[article.id].idx = idx;
+        return article;
+    };
 
+    function createHtmlStr(article) {
+        data.htmlStr[article.idx] = `
+            <div class="article">
+                <div class="title">
+                    <span class="ranking">${article.idx + 1}.</span>
+                    <a href="#" class="arrow"></a>
+                    <a href="${article.url}"><h3 class="article-title">${article.title}</h3></a>
+                    <div class="link">(<span class="url">${article.url}</span>)</div>
+                </div>
+                <div class="extra-info">
+                    <span class="point">${article.score} points</span>
+                    <span class="by">by ${article.by} </span>
+                    <span class="time">${article.time} |</span>
+                    hide |
+                    <span class="comments">${article.descendants} comments </span> 
+                </div>
+            </div>`;
+    };
 
 })();
     
