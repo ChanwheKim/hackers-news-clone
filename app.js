@@ -16,13 +16,13 @@ const data = {};
     .catch(displayError)
 
     let start, end;
-    function requestArticle(list, startIdx = 0, endIdx = 5) {
+    function requestArticle(list, startIdx = 0, endIdx = 15) {
         start = startIdx;
         end = endIdx;
 
         renderLoader();
 
-        for(var i = startIdx; i < endIdx; i++) {
+        for(let i = startIdx; i < endIdx; i++) {
             let articleUrl = `
                 https://cors-anywhere.herokuapp.com/https://hacker-news.firebaseio.com/v0/item/${data.IDs[i]}.json?print=pretty
                 `;
@@ -112,7 +112,38 @@ const data = {};
             });
 
             document.querySelector('.articles-container').innerHTML = htmlContent;
+
+            renderButton(data.IDs);
         }
+    };
+
+    function renderButton(list, page = 1, resPerPage = 15) {
+        let pages = Math.ceil(list.length / resPerPage);
+        let button;
+        
+        if(page === 1 && pages > 1) {
+            button = createButton(page, 'next');
+        } else if(page === pages && pages > 1) {
+            button = createButton(page, 'prev');
+        } else if(page < pages) {
+            button = `
+            ${createButton(page, 'prev')}
+            ${createButton(page, 'next')}
+            `;
+        }
+        document.querySelector('.buttons').innerHTML = button;
+    };
+
+    function createButton(page, type) {
+        return `
+            <button class="btn-inline ${type}" data-goto="${type === 'prev' ? page - 1 : page + 1}">
+                <span>Page ${type === 'prev' ? page - 1 : page + 1}</span>
+                <svg class="search__icon">
+                    <use href="img/icons-btn.svg#icon-triangle-${type === 'prev' ? 'left' : 'right'}"></use>
+                </svg>
+            </button>`
+        ;
+
     };
 
 })();
