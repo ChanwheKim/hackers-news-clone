@@ -20,6 +20,8 @@ const data = {};
         start = startIdx;
         end = endIdx;
 
+        renderLoader();
+
         for(var i = startIdx; i < endIdx; i++) {
             let articleUrl = `
                 https://cors-anywhere.herokuapp.com/https://hacker-news.firebaseio.com/v0/item/${data.IDs[i]}.json?print=pretty
@@ -50,6 +52,21 @@ const data = {};
 
     function displayError(error) {
         console.log(error + ' from displayError function.');
+    };
+
+    function renderLoader(type) {
+        let position;
+        if(type === 'small') { type = 'loader-small'; position = '.buttons'} 
+        else { type = 'loader'; position = '.articles-container'}
+
+        const loader = `
+            <div class="${type}">
+                <svg>
+                    <use href="img/icons.svg#icon-cw"></use>
+                </svg>
+            </div>`;
+        
+        document.querySelector(position).innerHTML = loader;
     };
 
     //// request for top-stories
