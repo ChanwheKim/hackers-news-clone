@@ -100,7 +100,7 @@ const data = {};
                     <span class="ranking">${article.idx + 1}.</span>
                     <a href="#" class="arrow"></a>
                     <a href="${article.url}"><h3 class="article-title">${article.title}</h3></a>
-                    <div class="link">(<span class="url">${article.url}</span>)</div>
+                    <div class="link">(<span class="url">${formatURL(article.url)}</span>)</div>
                 </div>
                 <div class="extra-info">
                     <span class="point">${article.score} points</span>
@@ -152,6 +152,11 @@ const data = {};
             </button>`
         ;
 
+    };
+
+    function formatURL(str) {
+        if(!str) return '---';
+        return str.replace('http://', '').replace('https://', '').replace('www.', '').split('/')[0];
     };
 
     document.querySelector('.buttons').addEventListener('click', function(e) {
