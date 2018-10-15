@@ -105,7 +105,7 @@ const data = {};
                 <div class="extra-info">
                     <span class="point">${article.score} points</span>
                     <span class="by">by ${article.by} </span>
-                    <span class="time">${article.time} |</span>
+                    <span class="time">${formatTime(article.time)} |</span>
                     hide |
                     <span class="comments">${article.descendants} comments </span> 
                 </div>
@@ -151,12 +151,23 @@ const data = {};
                 </svg>
             </button>`
         ;
-
     };
 
     function formatURL(str) {
         if(!str) return '---';
         return str.replace('http://', '').replace('https://', '').replace('www.', '').split('/')[0];
+    };
+
+    function formatTime(unix) {
+        let time = new Date() - new Date(unix * 1000);
+        let hour = 1000 * 60 * 60;
+        if(time >= hour) {
+            const hours = Math.floor(time / hour);
+            return hours === 1? `${hours} hour ago` : `${hours} hours ago`
+        } else if(time < hour) {
+            const min = Math.floor(time / (1000 * 60));
+            return min === 1? `${min} minute ago` : `${min} minutes ago`
+        }
     };
 
     document.querySelector('.buttons').addEventListener('click', function(e) {
