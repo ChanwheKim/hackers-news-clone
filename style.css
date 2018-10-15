@@ -185,30 +185,59 @@ h2 {
         transform: rotate(360deg);}
 }
 
+.buttons {
+    width: 21rem;
+    display: block;
+    padding: 1rem;
+}
+
+.buttons::after {
+    clear: both;
+    display: block;
+    content: '';
+}
+
 .btn-inline {
-    margin: 1rem 0rem 0rem 2.5rem;
+    margin: 1rem 0rem 0rem 2.3rem;
     border: none;
     background-color: transparent;
     font-size: 1.33333rem;
-    padding-bottom: 2px;
+    padding: 2px 7px;
     cursor: pointer;
     transition: all .2s;
     color: #ff6600;
     outline: none;
-    border-bottom: 1px solid currentColor;
+    border-radius: 5rem;
+    background-color: rgba(255, 255, 255, .7);
+    box-shadow: 3px 3px 10px 0 rgba(46,61,73,.2);
 }
 
-.btn-inline span {
-    margin-left: 5px;
-    transition: margin-left .2s;
+.prev {
+    float: left;
+}
+
+.prev svg {
+    float: left;
+}
+
+.next {
+    float: right;
 }
 
 .btn-inline:hover {
-    color: black;
+    box-shadow: 2px 2px 5px 0 rgba(46,61,73,.2);
 }
 
-.btn-inline:hover span {
-    margin-left: 8px;
+.btn-inline span {
+    line-height: 2.4rem;
+    display: inline-block;
+}
+
+.search__icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: #ff6600;
+    transform: translateY(4px);
 }
 
 .active {
