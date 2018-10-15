@@ -15,23 +15,22 @@ const data = {};
     .then(requestArticle)
     .catch(displayError)
 
+    let start, end;
     function requestArticle(list, startIdx = 0, endIdx = 5) {
-        
+        start = startIdx;
+        end = endIdx;
+
         for(var i = startIdx; i < endIdx; i++) {
             let articleUrl = `
                 https://cors-anywhere.herokuapp.com/https://hacker-news.firebaseio.com/v0/item/${data.IDs[i]}.json?print=pretty
                 `;
-
-            // For the reference in the future
-            if(!data.articles[data.IDs[i]]) {
-                data.articles[data.IDs[i]] = null;
-            }
 
             fetch(articleUrl)
             .then(handleError)
             .then(parseJSON)
             .then(saveArticles)
             .then(createHtmlStr)
+            .then(renderArticles)
 
         }
 
@@ -86,6 +85,17 @@ const data = {};
                     <span class="comments">${article.descendants} comments </span> 
                 </div>
             </div>`;
+    };
+
+    function renderArticles() {
+        let htmlContent;
+        if(data.htmlStr.length === end) {
+            htmlContent = data.htmlStr.slice(start, end).reduce((acc,cur) => {
+                return acc + cur;
+            });
+
+            document.querySelector('.articles-container').innerHTML = htmlContent;
+        }
     };
 
 })();
