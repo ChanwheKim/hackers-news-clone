@@ -16,24 +16,32 @@ const data = {};
     .catch(displayError)
 
     let start, end;
-    function requestArticle(list, startIdx = 0, endIdx = 15) {
-        start = startIdx;
-        end = endIdx;
+    let resPerPage = 15;
+    let page;
+
+    function requestArticle(list, pageNum = 1, type) {
+        page = pageNum;
+        start = (page - 1) * resPerPage;
+        end = start + resPerPage;
 
         renderLoader();
 
-        for(let i = startIdx; i < endIdx; i++) {
-            let articleUrl = `
-                https://cors-anywhere.herokuapp.com/https://hacker-news.firebaseio.com/v0/item/${data.IDs[i]}.json?print=pretty
-                `;
-
-            fetch(articleUrl)
-            .then(handleError)
-            .then(parseJSON)
-            .then(saveArticles)
-            .then(createHtmlStr)
-            .then(renderArticles)
-
+        if(type === 'prev' || end < data.htmlStr.length) {
+            renderArticles();
+        } else {
+            for(let i = start; i < end; i++) {
+                let articleUrl = `
+                    https://cors-anywhere.herokuapp.com/https://hacker-news.firebaseio.com/v0/item/${data.IDs[i]}.json?print=pretty
+                    `;
+    
+                fetch(articleUrl)
+                .then(handleError)
+                .then(parseJSON)
+                .then(saveArticles)
+                .then(createHtmlStr)
+                .then(renderArticles)
+    
+            }
         }
 
     };
@@ -106,14 +114,14 @@ const data = {};
 
     function renderArticles() {
         let htmlContent;
-        if(data.htmlStr.length === end) {
+        if(data.htmlStr.length >= end) {
             htmlContent = data.htmlStr.slice(start, end).reduce((acc,cur) => {
                 return acc + cur;
             });
 
             document.querySelector('.articles-container').innerHTML = htmlContent;
 
-            renderButton(data.IDs);
+            renderButton(data.IDs, page);
         }
     };
 
@@ -145,6 +153,15 @@ const data = {};
         ;
 
     };
+
+    document.querySelector('.buttons').addEventListener('click', function(e) {
+        let btn = e.target.closest('.btn-inline');
+        if(btn) {
+            let page = parseInt(btn.dataset.goto);
+            let type = btn.classList.contains('prev') ? 'prev' : 'next';
+            requestArticle(data.IDs, page, type);
+        }
+    });
 
 })();
     
