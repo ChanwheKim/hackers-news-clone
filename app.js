@@ -1,32 +1,24 @@
-
-// Tempo
-const data = {};
-
 (function() {
 
+    const data = {};    
 
     //// Http request for top stories list
     let topStoriesUrl = 'https://cors-anywhere.herokuapp.com/https://hacker-news.firebaseio.com/v0/topstories.json'
 
-    fetch(topStoriesUrl)
-    .then(handleError)
-    .then(parseJSON)
+    axios(topStoriesUrl)
     .then(saveArticleIDs)
     .then(requestArticle)
-    .catch(displayError)
+    .catch(handleErrors)
 
-    let start, end;
-    let resPerPage = 15;
-    let page;
+    renderLoader();   
+    
+    let start, end, requestSent = true;
 
-    function requestArticle(list, pageNum = 1, type) {
-        page = pageNum;
-        start = (page - 1) * resPerPage;
-        end = start + resPerPage;
+    function requestArticle(list, startIdx = 0, endIdx = 30) {
+        start = startIdx;
+        end = startIdx + endIdx;
 
-        renderLoader();
-
-        if(type === 'prev' || end < data.htmlStr.length) {
+        if(end < data.htmlStr.length) {
             renderArticles();
         } else {
             for(let i = start; i < end; i++) {
@@ -34,32 +26,26 @@ const data = {};
                     https://cors-anywhere.herokuapp.com/https://hacker-news.firebaseio.com/v0/item/${data.IDs[i]}.json?print=pretty
                     `;
     
-                fetch(articleUrl)
-                .then(handleError)
-                .then(parseJSON)
+                axios(articleUrl)
                 .then(saveArticles)
                 .then(createHtmlStr)
                 .then(renderArticles)
     
             }
         }
-
     };
 
     //// reusable functions
-    function handleError(response) {
-        if(!response.ok) {
-            throw Error(response.status);;
+    function handleErrors(err) {
+        if(err.response) {
+            console.log('Error with Response', err.response.status);
+        } else if(err.request) {
+            console.log('Error with Request ');
+        } else {
+            console.log('Error', err.message);
         }
-        return response;
-    };
-
-    function parseJSON(response) {
-        return response.json();
-    };
-
-    function displayError(error) {
-        console.log(error + ' from displayError function.');
+        alert('Something wrong with network!');
+        console.log(err);
     };
 
     function renderLoader(type) {
@@ -77,16 +63,23 @@ const data = {};
         document.querySelector(position).innerHTML = loader;
     };
 
+    function clearLoader() {
+        let loader = document.querySelector(".loader");
+        if(!loader) {loader = document.querySelector(".loader-small");}
+        if(loader) {loader.parentElement.removeChild(loader);}
+    };
+
     //// request for top-stories
     function saveArticleIDs(ids) {
-        data.IDs = ids;
+        data.IDs = ids.data;
         data.articles = {};
         data.htmlStr = [];
         return data.IDs;
     };
 
     //// request for separate articles
-    function saveArticles(article) {
+    function saveArticles(response) {
+        let article = response.data;
         let idx = data.IDs.indexOf(article.id);
         data.articles[article.id] = article;
         data.articles[article.id].idx = idx;
@@ -114,43 +107,17 @@ const data = {};
 
     function renderArticles() {
         let htmlContent;
-        if(data.htmlStr.length >= end) {
+        if(data.htmlStr.length === end) {
             htmlContent = data.htmlStr.slice(start, end).reduce((acc,cur) => {
                 return acc + cur;
             });
 
-            document.querySelector('.articles-container').innerHTML = htmlContent;
+            clearLoader();
+            
+            document.querySelector('.articles-container').insertAdjacentHTML('beforeend',htmlContent);
 
-            renderButton(data.IDs, page);
+            if(!requestSent) {requestSent = true;}
         }
-    };
-
-    function renderButton(list, page = 1, resPerPage = 15) {
-        let pages = Math.ceil(list.length / resPerPage);
-        let button;
-        
-        if(page === 1 && pages > 1) {
-            button = createButton(page, 'next');
-        } else if(page === pages && pages > 1) {
-            button = createButton(page, 'prev');
-        } else if(page < pages) {
-            button = `
-            ${createButton(page, 'prev')}
-            ${createButton(page, 'next')}
-            `;
-        }
-        document.querySelector('.buttons').innerHTML = button;
-    };
-
-    function createButton(page, type) {
-        return `
-            <button class="btn-inline ${type}" data-goto="${type === 'prev' ? page - 1 : page + 1}">
-                <span>Page ${type === 'prev' ? page - 1 : page + 1}</span>
-                <svg class="search__icon">
-                    <use href="img/icons-btn.svg#icon-triangle-${type === 'prev' ? 'left' : 'right'}"></use>
-                </svg>
-            </button>`
-        ;
     };
 
     function formatURL(str) {
@@ -161,23 +128,32 @@ const data = {};
     function formatTime(unix) {
         let time = new Date() - new Date(unix * 1000);
         let hour = 1000 * 60 * 60;
+        let minutes = 1000 * 60;
+
         if(time >= hour) {
             const hours = Math.floor(time / hour);
             return hours === 1? `${hours} hour ago` : `${hours} hours ago`
         } else if(time < hour) {
-            const min = Math.floor(time / (1000 * 60));
+            const min = Math.floor(time / minutes);
             return min === 1? `${min} minute ago` : `${min} minutes ago`
         }
     };
 
-    document.querySelector('.buttons').addEventListener('click', function(e) {
-        let btn = e.target.closest('.btn-inline');
-        if(btn) {
-            let page = parseInt(btn.dataset.goto);
-            let type = btn.classList.contains('prev') ? 'prev' : 'next';
-            requestArticle(data.IDs, page, type);
+    document.addEventListener('scroll', function() {
+        let contentHeight = document.querySelector('.articles-container').offsetHeight;
+        let yOffset = window.pageYOffset;
+        let vpheight = window.innerHeight;
+        let paginationHeight = contentHeight - vpheight - 100 - 30;
+
+        if(yOffset > 200 && yOffset >= paginationHeight) {
+            renderLoader('small');
+            if(requestSent) {
+                requestSent = false;
+                requestArticle(data.IDs, end, 7);
+                console.log('extra request sent!!');
+            }
         }
-    });
+    })
 
 })();
     
