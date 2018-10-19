@@ -1,21 +1,9 @@
 
 ## Hacker News Clone
-&nbsp;
-<figure style='display:inline-block; width: 30%; text-align:center; margin:0 10px 0 0;'>
-    <img src='img/xhr-more-button.gif' width='240px'>
-    <figurecaption>xhr with 'more' button</figurecaption>
-</figure>
-<figure style='display:inline-block; width: 30%; text-align:center; margin:0 10px 0 0;'>
-    <img src='img/fetch-pointed-buttons.gif' width='240px'>
-    <figurecaption>fetch with 'opinted' buttons</figurecaption>
-</figure>
-<figure style='display:inline-block; width: 30%; text-align:center; margin:0 0 0 0;'>
-    <img src='img/axios-infinite-scroll.gif' width='240px'>
-    <figurecaption>axios with infinite scroll</figurecaption>
-</figure>
-
 ### Introduction
 A recreation of the Hacker News website 
+&nbsp;
+<img src='img/ajax.gif'>
 
 ### Features
 - Hacker News list with top stories
