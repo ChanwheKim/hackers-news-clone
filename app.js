@@ -1,37 +1,33 @@
+const data = {};
+
 (function() {
 
-    const data = {};    
-
     //// Http request for top stories list
-    let topStoriesUrl = 'https://cors-anywhere.herokuapp.com/https://hacker-news.firebaseio.com/v0/topstories.json'
+    let topStoriesUrl = 'https://hacker-news.firebaseio.com/v0/topstories.json'
 
     axios(topStoriesUrl)
     .then(saveArticleIDs)
     .then(requestArticle)
     .catch(handleErrors)
 
-    renderLoader();   
+    renderLoader();
     
-    let start, end, requestSent = true;
+    let start, end, requestSent = true, count = 0;
 
     function requestArticle(list, startIdx = 0, endIdx = 30) {
         start = startIdx;
         end = startIdx + endIdx;
 
-        if(end < data.htmlStr.length) {
-            renderArticles();
-        } else {
-            for(let i = start; i < end; i++) {
-                let articleUrl = `
-                    https://cors-anywhere.herokuapp.com/https://hacker-news.firebaseio.com/v0/item/${data.IDs[i]}.json?print=pretty
-                    `;
-    
-                axios(articleUrl)
-                .then(saveArticles)
-                .then(createHtmlStr)
-                .then(renderArticles)
-    
-            }
+        for(let i = start; i < end; i++) {
+            let articleUrl = `
+                https://hacker-news.firebaseio.com/v0/item/${data.IDs[i]}.json?print=pretty
+                `;
+
+            axios(articleUrl)
+            .then(saveArticles)
+            .then(createHtmlStr)
+            .then(renderArticles)
+
         }
     };
 
@@ -107,7 +103,10 @@
 
     function renderArticles() {
         let htmlContent;
-        if(data.htmlStr.length === end) {
+        count++;
+
+        if(data.htmlStr.length === end && count === end) {
+            console.log('Appending', data);
             htmlContent = data.htmlStr.slice(start, end).reduce((acc,cur) => {
                 return acc + cur;
             });
